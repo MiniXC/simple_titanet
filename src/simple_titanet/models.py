@@ -34,7 +34,7 @@ class TitaNet(nn.Module):
         se_reduction=16,
         simple_pool=False,
         dropout=0.5,
-        encoder_only=False,
+        encoder_output=False,
         load_pretrained=True,
     ):
         super(TitaNet, self).__init__()
@@ -50,7 +50,7 @@ class TitaNet(nn.Module):
             encoder_hidden_size = (1024,)
             mega_block_kernel_size = 11
 
-        self.encoder_only = encoder_only
+        self.encoder_output = encoder_output
 
         # Define encoder and decoder
         self.encoder = Encoder(
@@ -65,13 +65,12 @@ class TitaNet(nn.Module):
             se_reduction=se_reduction,
             dropout=dropout,
         )
-        if not self.encoder_only:
-            self.decoder = Decoder(
-                encoder_output_size,
-                attention_hidden_size,
-                embedding_size,
-                simple_pool=simple_pool,
-            )
+        self.decoder = Decoder(
+            encoder_output_size,
+            attention_hidden_size,
+            embedding_size,
+            simple_pool=simple_pool,
+        )
 
         if load_pretrained:
             self.load_state_dict(
@@ -94,13 +93,12 @@ class TitaNet(nn.Module):
         """
         encodings = self.encoder(spectrograms)
 
-        if self.encoder_only:
-            return encodings
-
         embeddings = self.decoder(encodings)
 
-        # Inference mode
-        return F.normalize(embeddings, p=2, dim=1)
+        if not self.encoder_output:
+            return F.normalize(embeddings, p=2, dim=1)
+        else:
+            return F.normalize(embeddings, p=2, dim=1), encodings
 
 
 class Encoder(nn.Module):
