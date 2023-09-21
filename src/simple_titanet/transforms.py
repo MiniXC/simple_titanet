@@ -32,22 +32,11 @@ class MelSpectrogram:
 
     def __call__(self, audio):
         mel = self.spectrogram(audio)
-
-        # Perform time stretching (SpecAugment)
-        apply_specaugment = random.random() < self.specaugment_probability
-        if apply_specaugment:
-            time_stretch = random.uniform(
-                self.specaugment_min_speed, self.specaugment_max_speed
-            )
-            mel = self.time_stretching(mel, time_stretch)
-
         # Convert from complex to real domain
         mel = mel.abs().pow(2)
-
         # Convert to mel scale, convert from amplitude to decibels and
         # normalize over the frequency dimension
         mel = self.mel_scale(mel)
         mel = self.amplitude_to_db(mel)
         mel = F.normalize(mel, dim=1)
-
         return mel

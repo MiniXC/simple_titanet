@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, find_namespace_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -12,10 +12,11 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MiniXC/simple_titanet",
-    packages=find_packages(),
+    packages=find_namespace_packages(where="src"),
+    package_dir={"": "src"},
     package_data={
-        "simple_titanet": [
-            "simple_titanet/*.pth",
+        "simple_titanet.data": [
+            "*.pth",
         ],
     },
     classifiers=[

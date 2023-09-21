@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from pathlib import Path
 
 import simple_titanet.modules as modules
 import simple_titanet.losses as losses
@@ -75,7 +76,7 @@ class TitaNet(nn.Module):
         if load_pretrained:
             self.load_state_dict(
                 torch.load(
-                    "simple_titanet/titanet_epoch_100.pth",
+                    Path(__file__).parent / "data" / f"titanet_epoch_100.pth",
                     map_location=torch.device("cpu"),
                 )["model"],
                 strict=False,
@@ -208,7 +209,7 @@ class MegaBlock(nn.Module):
                 )
                 for in_channels, out_channels in zip(channels[:-1], channels[1:])
             ],
-            modules.SqueezeExcitation(output_size, reduction=se_reduction)
+            modules.SqueezeExcitation(output_size, reduction=se_reduction),
         )
 
         # Define the final skip connection
